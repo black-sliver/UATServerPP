@@ -10,7 +10,7 @@ for protocol description.
 ## How to build
 
 * define `ASIO_BOOST` or `ASIO_STANDALONE` project-wide or before including
-* `#include <uatserver.hpp>`
+* `#include <uatserverpp.hpp>`
 * add other header libraries to the include path in you Makefile or project:
   * [nlohmann::json](https://github.com/nlohmann/json)
   * [valijson](https://github.com/tristanpenman/valijson)
@@ -26,22 +26,26 @@ for protocol description.
 #include <list>
 #include <uatserverpp.hpp>
 UAT::Server* server;
+asio::io_service service;
 
 void run() {
-    asio::io_service service;
     server = new UAT::Server(&service);
     server->set_name("Name of the Game or Mod");
     server->set_version("1.00");
-    server->set_slots({"Player 1", "Player 2'}); // optional slots
+    server->set_slots({"Player 1", "Player 2"}); // optional slots
     server->start(); // start to listen
     service.run(); // or any other way to poll the asio service
 }
 
-void some_callback() {
+void some_service_callback() {
     std::list<UAT::Var> vars = {
         {"Player 1", "sword", 1} // slot is "" if there are no slots
     };
     server->set_vars(vars);
+}
+
+void some_other_callback() {
+    service.post(some_service_callback); // run code inside asio service thread
 }
 ```
 
